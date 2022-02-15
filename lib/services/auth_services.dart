@@ -10,9 +10,11 @@ class AuthService {
   Future<bool> verifyToken() async {
     sharedPreference = await SharedPreferences.getInstance();
 
+    /*
     if (sharedPreference.getString('accessToken') == null) {
       return false;
     }
+    */
 
     return true;
   }

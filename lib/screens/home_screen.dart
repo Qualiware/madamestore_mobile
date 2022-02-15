@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:mobile_madamestore/screens/vendas_form_screen.dart';
 import 'package:mobile_madamestore/screens/vendas_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,6 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
   final screens = [
     VendasListScreen(),
+    VendasFormScreen(),
   ];
 
 
