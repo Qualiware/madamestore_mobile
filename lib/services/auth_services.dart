@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:mobile_madamestore/constants/Constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart';
 
@@ -10,11 +11,12 @@ class AuthService {
   Future<bool> verifyToken() async {
     sharedPreference = await SharedPreferences.getInstance();
 
-    /*
+
     if (sharedPreference.getString('accessToken') == null) {
       return false;
     }
-    */
+
+
 
     return true;
   }
@@ -23,7 +25,7 @@ class AuthService {
     sharedPreference = await SharedPreferences.getInstance();
 
     var apiUrl =
-        Uri.parse('http://192.168.77.34:8081/modelo-api/api/v1/auth/login');
+        Uri.parse(Constants.apiURL+'/auth/login');
 
     var body = jsonEncode({'email': email, 'senha': password});
     var response = await post(apiUrl, body: body, headers: {
@@ -47,5 +49,15 @@ class AuthService {
 
     await sharedPreference.clear();
     return true;
+  }
+
+  Future<String> getAccessToken() async {
+    sharedPreference = await SharedPreferences.getInstance();
+
+    String? accessToken = sharedPreference.getString('accessToken');
+
+    if (accessToken != null) return accessToken;
+
+    return '';
   }
 }

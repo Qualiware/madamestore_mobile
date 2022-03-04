@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_madamestore/models/Venda.dart';
 
 class VendasListItem extends StatefulWidget {
-  const VendasListItem({Key? key}) : super(key: key);
+  VendasListItem({Key? key, required this.venda}) : super(key: key);
+
+  final Venda venda;
 
   @override
   _VendasListItemState createState() => _VendasListItemState();
 }
 
 class _VendasListItemState extends State<VendasListItem> {
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -23,9 +27,9 @@ class _VendasListItemState extends State<VendasListItem> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: const [
+                  children: [
                     Text(
-                      'Julio Cesar',
+                      widget.venda.nomeCliente,
                       style: TextStyle(
                         fontSize: 14,
                       ),
@@ -34,18 +38,15 @@ class _VendasListItemState extends State<VendasListItem> {
                       height: 5,
                     ),
                     Text(
-                      'R\$ 200,00',
+                      'R\$ ${widget.venda.valorTotal}',
                       style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
               ),
               Expanded(
-                child: Text(
-                  'Finalizada',
-                  style: TextStyle(color: Colors.green),
-                ),
+                child: statusText(),
               ),
               ElevatedButton(
                 onPressed: () {},
@@ -57,5 +58,26 @@ class _VendasListItemState extends State<VendasListItem> {
             ],
           ),
         ));
+  }
+
+  Text statusText() {
+    Text text;
+    if (widget.venda.statusPendente) {
+      text = Text('Pendente', style: TextStyle(
+        color: Colors.pinkAccent,
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+      ),);
+    }
+    else {
+      text = Text('Finalizada', style: TextStyle(
+        color: Colors.grey,
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+      ),);
+    }
+
+
+    return text;
   }
 }
