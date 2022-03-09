@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_madamestore/models/Venda.dart';
+import 'package:mobile_madamestore/screens/details_screen.dart';
 
 class VendasListItem extends StatefulWidget {
   VendasListItem({Key? key, required this.venda}) : super(key: key);
@@ -11,7 +12,6 @@ class VendasListItem extends StatefulWidget {
 }
 
 class _VendasListItemState extends State<VendasListItem> {
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -40,7 +40,7 @@ class _VendasListItemState extends State<VendasListItem> {
                     Text(
                       'R\$ ${widget.venda.valorTotal}',
                       style:
-                      TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -48,13 +48,6 @@ class _VendasListItemState extends State<VendasListItem> {
               Expanded(
                 child: statusText(),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text('Detalhes'),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.pinkAccent,
-                ),
-              )
             ],
           ),
         ));
@@ -63,20 +56,24 @@ class _VendasListItemState extends State<VendasListItem> {
   Text statusText() {
     Text text;
     if (widget.venda.statusPendente) {
-      text = Text('Pendente', style: TextStyle(
-        color: Colors.pinkAccent,
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-      ),);
+      text = Text(
+        'Pendente',
+        style: TextStyle(
+          color: Colors.pinkAccent,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      );
+    } else {
+      text = Text(
+        'Finalizada',
+        style: TextStyle(
+          color: Colors.grey,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      );
     }
-    else {
-      text = Text('Finalizada', style: TextStyle(
-        color: Colors.grey,
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-      ),);
-    }
-
 
     return text;
   }

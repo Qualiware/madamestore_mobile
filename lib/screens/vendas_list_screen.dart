@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_madamestore/models/Venda.dart';
 import 'package:mobile_madamestore/models/ItemVenda.dart';
 import 'package:mobile_madamestore/services/vendas_services.dart';
+import 'package:mobile_madamestore/widgets/vendas_list.dart';
 import 'package:mobile_madamestore/widgets/vendas_list_item.dart';
 
 class VendasListScreen extends StatefulWidget {
@@ -47,10 +48,15 @@ class _VendasListScreenState extends State<VendasListScreen> {
 
                       if (vendas != null) {
                         return ListView.builder(
-                            itemCount: vendas.length,
+                            itemCount: 1,
                             itemBuilder: (context, index) {
-                              final Venda venda = Venda.fromJson(vendas[index]);
-                              return VendasListItem(venda: venda);
+
+                              List<Venda> vendasClass = [];
+                              for (var venda in vendas) {
+                                final Venda vendaObj = Venda.fromJson(venda);
+                                vendasClass.add(vendaObj);
+                              }
+                              return VendasList(vendas: vendasClass);
                             });
                       }
 
