@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_madamestore/models/ItemVenda.dart';
 import 'package:mobile_madamestore/models/Venda.dart';
+import 'package:mobile_madamestore/screens/home_screen.dart';
+import 'package:mobile_madamestore/services/vendas_services.dart';
+import 'package:mobile_madamestore/widgets/vendas_list_item.dart';
 
 class DetailsVenda extends StatefulWidget {
-  const DetailsVenda({Key? key, required this.venda}) : super(key: key);
+  DetailsVenda({Key? key, required this.venda}) : super(key: key);
 
-  final Venda venda;
+  Venda venda;
 
   @override
   _DetailsVendaState createState() => _DetailsVendaState();
 }
 
 class _DetailsVendaState extends State<DetailsVenda> {
+
+  final VendasService vendasService = VendasService();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -61,17 +67,34 @@ class _DetailsVendaState extends State<DetailsVenda> {
             SizedBox(
               height: 20,
             ),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red,
-              ),
-              child: Text('Finalizar'),
-            )
+            finalizarWidget(),
           ],
         ),
       ),
     );
+  }
+
+  Widget finalizarWidget() {
+    if (widget.venda.statusPendente) {
+      return ElevatedButton(
+        onPressed: () async {
+          Venda newVenda = await vendasService.finalizarVenda(widget.venda.id);
+          setState(() {
+            widget.venda = newVenda;
+          });
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomeScreen()));
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Colors.red,
+        ),
+        child: Text('Finalizar'),
+      );
+    } else {
+      return SizedBox();
+    }
   }
 
   Widget produtoList() {

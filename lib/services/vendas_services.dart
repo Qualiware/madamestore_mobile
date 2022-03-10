@@ -32,8 +32,6 @@ class VendasService {
     var apiURL = Uri.parse(Constants.apiURL+'/venda/all');
     
     // var body = jsonEncode()
-
-
     String accessToken = await authService.getAccessToken();
 
     // print(accessToken);
@@ -47,5 +45,21 @@ class VendasService {
 
 
     return jsonDecode(response.body);
+  }
+
+  Future<Venda> finalizarVenda(int id) async {
+
+    var apiURL = Uri.parse(Constants.apiURL+'/venda/${id}/finalizar');
+    String accessToken = await authService.getAccessToken();
+
+    var response = await put(apiURL, headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'accessToken': accessToken
+    });
+
+    final Venda vendaFinalizada = Venda.fromJson(jsonDecode(response.body));
+
+    return vendaFinalizada;
   }
 }
