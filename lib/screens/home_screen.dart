@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_madamestore/screens/options_screen.dart';
 
 import 'package:mobile_madamestore/screens/vendas_form_screen.dart';
 import 'package:mobile_madamestore/screens/vendas_list_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,8 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final screens = [
     VendasListScreen(),
     VendasFormScreen(),
+    OptionsScreen(),
   ];
-
 
   @override
   Widget build(BuildContext context) {

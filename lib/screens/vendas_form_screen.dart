@@ -1,6 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_madamestore/dto/VendaDTO.dart';
+import 'package:mobile_madamestore/models/Cliente.dart';
+import 'package:mobile_madamestore/models/Produto.dart';
+import 'package:mobile_madamestore/screens/home_screen.dart';
+import 'package:mobile_madamestore/services/clients_service.dart';
+import 'package:mobile_madamestore/services/products_service.dart';
 import 'package:mobile_madamestore/services/vendas_services.dart';
+import 'package:mobile_madamestore/widgets/list_products_item.dart';
 
 class VendasFormScreen extends StatefulWidget {
   const VendasFormScreen({Key? key}) : super(key: key);
@@ -11,12 +21,24 @@ class VendasFormScreen extends StatefulWidget {
 
 class _VendasFormScreenState extends State<VendasFormScreen> {
   final clients = ['Julio Cesar', 'Caio Martins', 'Lucas Serafim'];
-  String? value;
+  String? valueClient;
+  String? valueProduct;
 
+  List<Cliente> clientesList = [];
+  List<Produto> produtosList = [];
+
+  List<Produto> cart = [];
+
+  ClientsService clientsService = ClientsService();
+  ProductsService productsService = ProductsService();
   VendasService vendasService = VendasService();
 
   DateTime date = DateTime.now();
-  double valorTotal = 200.00;
+  double valorTotal = 0.00;
+
+  final TextEditingController quantidadeController =
+      TextEditingController(text: '1');
+  int quantidade = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -55,33 +77,153 @@ class _VendasFormScreenState extends State<VendasFormScreen> {
                       ),
                     ),
                     Expanded(
-                      child: DropdownButton(
-                        value: value,
-                        isExpanded: true,
-                        hint: Text('Cliente'),
-                        items: clients.map(buildMenuItem).toList(),
-                        onChanged: (value) =>
-                            setState(() => this.value = value as String?),
+                        child: FutureBuilder<List>(
+                      future: clientsService.getAll(),
+                      builder: (context, snapshot) {
+                        final List? clientsA = snapshot.data;
+
+                        if (clientsA != null) {
+                          List<Cliente> clientesClass = [];
+                          for (var client in clientsA) {
+                            final Cliente clientObj = Cliente.fromJson(client);
+                            clientesClass.add(clientObj);
+                          }
+
+                          clientesList = clientesClass;
+                          List<String> clientNameList = [];
+                          for (Cliente client in clientesList) {
+                            clientNameList.add(client.nome);
+                          }
+
+                          return DropdownButton(
+                            value: valueClient,
+                            isExpanded: true,
+                            hint: Text('Cliente'),
+                            items: clientNameList.map(buildMenuItem).toList(),
+                            onChanged: (value) => setState(
+                                () => this.valueClient = value as String?),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Text(snapshot.error.toString());
+                        }
+
+                        return const Text('Nenhum cliente encontrado');
+                      },
+                    )),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FutureBuilder<List>(
+                        future: productsService.getAll(),
+                        builder: (context, snapshot) {
+                          final List? productsA = snapshot.data;
+
+                          if (productsA != null) {
+                            List<Produto> produtosClass = [];
+                            for (var product in productsA) {
+                              final Produto productObj =
+                                  Produto.fromJson(product);
+                              produtosClass.add(productObj);
+                            }
+
+                            produtosList = produtosClass;
+                            List<String> productNameList = [];
+                            for (Produto produto in produtosList) {
+                              productNameList.add(produto.nome);
+                            }
+
+                            return DropdownButton(
+                              value: valueProduct,
+                              isExpanded: true,
+                              hint: Text('Produto'),
+                              items:
+                                  productNameList.map(buildMenuItem).toList(),
+                              onChanged: (value) => setState(
+                                  () => this.valueProduct = value as String?),
+                            );
+                          }
+
+                          if (snapshot.hasError) {
+                            return Text(snapshot.error.toString());
+                          }
+
+                          return const Text('Nenhum produto encontrado');
+                        },
                       ),
+                    ),
+                    Expanded(
+                      child: minAndPlusButton(),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.pinkAccent,
+                      ),
+                      onPressed: () {
+                        Produto produtoAdd = getProdutoByName(valueProduct);
+                        if (produtoAdd.quantidade >= quantidade) {
+                          produtoAdd.quantidadeAdd = quantidade;
+                          setState(() {
+                            cart.add(produtoAdd);
+                            valorTotal +=
+                                (produtoAdd.quantidadeAdd * produtoAdd.preco);
+                          });
+                        }
+                      },
+                      child: Text('Add'),
                     ),
                   ],
                 ),
-
+                SingleChildScrollView(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: listProductsItem(),
+                  ),
+                ),
                 Expanded(
-                  child: Text('Valor Total: R\$ $valorTotal'),
+                  child: Row(
+                    children: [
+                      Text(
+                        'TOTAL: ',
+                        style: TextStyle(
+                          color: Colors.pinkAccent,
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      Text(
+                        'R\$ ${valorTotal}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Colors.pinkAccent,
                   ),
-                  onPressed: () {
-                    vendasService.getAll();
+                  onPressed: () async {
+                    Cliente clienteToSave = getClienteByName(valueClient);
+                    VendaDTO vendaToSave = VendaDTO(
+                      dataVenda: date,
+                      idCliente: clienteToSave.id,
+                      valorTotal: valorTotal,
+                      itemVendaList: cart,
+                    );
+
+                    // TO DO SAVE VENDA
+                    await vendasService.postVenda(vendaToSave);
+
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomeScreen()));
                   },
                   child: Text('Salvar'),
                 ),
-
               ],
-
             ),
           ),
         ),
@@ -122,6 +264,101 @@ class _VendasFormScreenState extends State<VendasFormScreen> {
 
     setState(() {
       date = newDate;
+    });
+  }
+
+  ShapeDecoration buttonDecoration = ShapeDecoration(
+    shape: CircleBorder(),
+    color: Colors.pinkAccent,
+  );
+
+  Widget minAndPlusButton() {
+    Widget minsButton = Ink(
+      decoration: buttonDecoration,
+      child: IconButton(
+        onPressed: () {
+          if (quantidade > 1) {
+            --quantidade;
+            quantidadeController.text = quantidade.toString();
+          }
+        },
+        icon: Icon(
+          Icons.remove,
+        ),
+        highlightColor: Colors.pinkAccent,
+      ),
+    );
+
+    Widget plusButton = Ink(
+      decoration: buttonDecoration,
+      child: IconButton(
+        onPressed: () {
+          ++quantidade;
+          quantidadeController.text = quantidade.toString();
+        },
+        icon: Icon(
+          Icons.add,
+        ),
+        highlightColor: Colors.pinkAccent,
+      ),
+    );
+
+    Widget quantidadeText = TextField(
+      controller: quantidadeController,
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.center,
+    );
+
+    Widget minAndPlus = Row(
+      children: [minsButton, Expanded(child: quantidadeText), plusButton],
+    );
+
+    return minAndPlus;
+  }
+
+  Produto getProdutoByName(String? nome) {
+    Produto produtoReturn;
+    for (Produto produto in produtosList) {
+      if (produto.nome == nome) {
+        produtoReturn = produto;
+        return produtoReturn;
+      }
+    }
+
+    return produtosList[0];
+  }
+
+  Cliente getClienteByName(String? nome) {
+    Cliente clienteReturn;
+    for (Cliente cliente in clientesList) {
+      if (cliente.nome == nome) {
+        clienteReturn = cliente;
+        return clienteReturn;
+      }
+    }
+
+    return clientesList[0];
+  }
+
+  List<ListProductsItem> listProductsItem() {
+    List<ListProductsItem> listListProductsItem = [];
+
+    for (Produto produto in cart) {
+      ListProductsItem listProductsItem = ListProductsItem(
+        produto: produto,
+        removeProductFromList: removeProductFromList,
+      );
+      listListProductsItem.add(listProductsItem);
+    }
+
+    return listListProductsItem;
+  }
+
+  void removeProductFromList(Produto produto) {
+    setState(() {
+      cart.remove(produto);
+
+      valorTotal -= (produto.quantidadeAdd * produto.preco);
     });
   }
 }

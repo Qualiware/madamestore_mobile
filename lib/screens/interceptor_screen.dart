@@ -4,14 +4,14 @@ import 'package:mobile_madamestore/services/auth_services.dart';
 
 import 'home_screen.dart';
 
-class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+class InterceptorScreen extends StatefulWidget {
+  const InterceptorScreen({Key? key}) : super(key: key);
 
   @override
-  _WelcomeScreenState createState() => _WelcomeScreenState();
+  _InterceptorScreenState createState() => _InterceptorScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _InterceptorScreenState extends State<InterceptorScreen> {
 
   final authService = AuthService();
 

@@ -6,9 +6,11 @@ import 'package:mobile_madamestore/widgets/DetailsVenda.dart';
 import 'package:mobile_madamestore/widgets/vendas_list_item.dart';
 
 class VendasList extends StatefulWidget {
-  const VendasList({Key? key, required this.vendas}) : super(key: key);
+  VendasList({Key? key, required this.vendas, required this.orderBy}) : super(key: key);
 
   final List vendas;
+  final String? orderBy;
+  int id = 1;
 
   @override
   _VendasListState createState() => _VendasListState();
@@ -17,6 +19,14 @@ class VendasList extends StatefulWidget {
 class _VendasListState extends State<VendasList> {
   @override
   Widget build(BuildContext context) {
+    if (widget.orderBy == 'Finalizada') {
+      widget.vendas.sort((a, b) {
+        if (a.statusVendido) {
+          return -1;
+        }
+        return 1;
+      });
+    }
     return SingleChildScrollView(
       child: ExpansionPanelList.radio(
         children: widget.vendas
@@ -26,7 +36,7 @@ class _VendasListState extends State<VendasList> {
                   body: DetailsVenda(
                     venda: venda,
                   ),
-                  value: venda.id,
+                  value: ++widget.id,
                 ))
             .toList(),
       ),

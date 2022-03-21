@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_madamestore/screens/login_screen.dart';
-import 'package:mobile_madamestore/screens/welcome_screen.dart';
+import 'package:mobile_madamestore/screens/interceptor_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.pinkAccent
       ),
       debugShowCheckedModeBanner: false,
-      home: WelcomeScreen(),
+      home: InterceptorScreen(),
     );
   }
 }

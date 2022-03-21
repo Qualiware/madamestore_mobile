@@ -14,6 +14,9 @@ class VendasListScreen extends StatefulWidget {
 
 class _VendasListScreenState extends State<VendasListScreen> {
   VendasService vendasService = VendasService();
+  String? orderByStatus;
+
+  List<String> statusItem = ['Finalizada', 'Pendente'];
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +28,30 @@ class _VendasListScreenState extends State<VendasListScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Vendas',
-                  style: TextStyle(
-                    fontSize: 30,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Vendas',
+                        style: TextStyle(
+                          fontSize: 30,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: DropdownButton(
+                        value: orderByStatus,
+                        isExpanded: true,
+                        hint: Text('Status'),
+                        items: statusItem.map(buildMenuItem).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            orderByStatus = value.toString();
+                          });
+                        }
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 16,
@@ -38,25 +60,27 @@ class _VendasListScreenState extends State<VendasListScreen> {
                   child: FutureBuilder<List>(
                     future: vendasService.getAll(),
                     builder: (context, snapshot) {
-                      final List? vendas = snapshot.data;
+                      List? vendas = snapshot.data;
 
                       if (snapshot.connectionState != ConnectionState.done) {
                         return const Center(
-                          child: CircularProgressIndicator(color: Colors.pinkAccent,),
+                          child: CircularProgressIndicator(
+                            color: Colors.pinkAccent,
+                          ),
                         );
                       }
 
                       if (vendas != null) {
+                        vendas.sort((a, b) => b['dataVenda'].compareTo(a['dataVenda']));
                         return ListView.builder(
                             itemCount: 1,
                             itemBuilder: (context, index) {
-
                               List<Venda> vendasClass = [];
                               for (var venda in vendas) {
                                 final Venda vendaObj = Venda.fromJson(venda);
                                 vendasClass.add(vendaObj);
                               }
-                              return VendasList(vendas: vendasClass);
+                              return VendasList(vendas: vendasClass, orderBy: orderByStatus,);
                             });
                       }
 
@@ -75,4 +99,12 @@ class _VendasListScreenState extends State<VendasListScreen> {
       ),
     );
   }
+
+  DropdownMenuItem<String> buildMenuItem(String item) =>
+      DropdownMenuItem(
+        value: item,
+        child: Text(
+          item,
+        ),
+      );
 }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:mobile_madamestore/constants/Constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   late SharedPreferences sharedPreference;
@@ -16,7 +17,7 @@ class AuthService {
       return false;
     }
 
-
+    print(sharedPreference.getString('accessToken'));
 
     return true;
   }
@@ -39,7 +40,7 @@ class AuthService {
 
       return true;
     } else {
-      //print(response.body);
+      print(response.body);
       return false;
     }
   }
@@ -60,4 +61,17 @@ class AuthService {
 
     return '';
   }
+
+  Future<Map> getUserInformation() async {
+    sharedPreference = await SharedPreferences.getInstance();
+
+    return JwtDecoder.decode(sharedPreference.getString('accessToken')!);
+  }
+
+  Future<void> clearAccesToken() async {
+    sharedPreference = await SharedPreferences.getInstance();
+
+    sharedPreference.clear();
+  }
+
 }
